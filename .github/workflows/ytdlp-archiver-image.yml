@@ -7,8 +7,9 @@ on:
       - "ytdlp-archiver/**"
       - ".github/workflows/ytdlp-archiver-image.yml"
   schedule:
-    # Source lives on Codeberg, so a push there never triggers this
-    # workflow. Rebuild daily instead to pick up new source commits,
+    # Source lives in a separate repo (canonical on Codeberg, mirrored to
+    # GamerX27/X-YT-DLP-Archiver on GitHub), so a push there never triggers
+    # this workflow. Rebuild daily instead to pick up new source commits,
     # yt-dlp releases, and base-image security patches.
     - cron: "0 6 * * *"
   workflow_dispatch:
@@ -21,8 +22,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone X-YT-DLP-Archiver source (hosted on Codeberg, not mirrored here)
-        run: git clone --depth=1 https://codeberg.org/X27/X-YT-DLP-Archiver.git source
+      - name: Checkout X-YT-DLP-Archiver source (mirrored from Codeberg)
+        uses: actions/checkout@v4
+        with:
+          repository: GamerX27/X-YT-DLP-Archiver
+          path: source
 
       - uses: docker/setup-qemu-action@v3
 

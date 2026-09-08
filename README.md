@@ -7,4 +7,4 @@ Compose files for images pulled from other maintainers live in [Docker-X27-Compo
 ## Images
 
 - [unbound](unbound) — `ghcr.io/gamerx27/unbound`
-- [ytdlp-archiver](ytdlp-archiver): `ghcr.io/gamerx27/ytdlp-archiver`, source on [Codeberg](https://codeberg.org/X27/X-YT-DLP-Archiver), built by CI from there, not mirrored here
+- [ytdlp-archiver](ytdlp-archiver): `ghcr.io/gamerx27/ytdlp-archiver`, source is canonical on [Codeberg](https://codeberg.org/X27/X-YT-DLP-Archiver) and mirrored to [GitHub](https://github.com/GamerX27/X-YT-DLP-Archiver), built by CI from the GitHub mirror, not mirrored here
