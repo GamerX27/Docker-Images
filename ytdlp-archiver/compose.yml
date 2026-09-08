@@ -2,19 +2,12 @@ services:
   ytdlp-archiver:
     image: ghcr.io/gamerx27/ytdlp-archiver:latest
     container_name: ytdlp-archiver
-    environment:
-      - MAX_CONCURRENT_DOWNLOADS=2
-      - PUID=1000
-      - PGID=1000
-      # Jellyfin (optional, required for the Monitor tab)
-      #- JELLYFIN_URL=http://192.168.x.x:8096
-      #- JELLYFIN_API_KEY=
-      #- JELLYFIN_MEDIA_PATH=/mnt/Media
+    env_file:
+      - .env
     volumes:
       - downloads_tmp:/app/tmp_downloads
       - monitors_data:/app/monitors_data
-      # Must match JELLYFIN_MEDIA_PATH above
-      #- /mnt/Media:/mnt/Media
+      - ${JELLYFIN_MEDIA_PATH:-/tmp/jf_noop}:${JELLYFIN_MEDIA_PATH:-/tmp/jf_noop}
     network_mode: host
     init: true
     restart: unless-stopped
