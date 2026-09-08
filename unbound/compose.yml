@@ -1,0 +1,16 @@
+services:
+  unbound:
+    image: ghcr.io/gamerx27/unbound:latest
+    container_name: unbound
+    restart: unless-stopped
+    ports:
+      - "5335:53/udp"
+      - "5335:53/tcp"
+    volumes:
+      - ./config:/etc/unbound
+    healthcheck:
+      test: ["CMD", "drill", "-p", "53", "@127.0.0.1", "cloudflare.com"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
