@@ -7,9 +7,9 @@ on:
       - "ytdlp-archiver/**"
       - ".github/workflows/ytdlp-archiver-image.yml"
   schedule:
-    # Source lives on Codeberg (see ytdlp-archiver/README.md), so a push
-    # there never triggers this workflow — rebuild daily instead to pick up
-    # new source commits, yt-dlp releases, and base-image security patches.
+    # Source lives on Codeberg, so a push there never triggers this
+    # workflow. Rebuild daily instead to pick up new source commits,
+    # yt-dlp releases, and base-image security patches.
     - cron: "0 6 * * *"
   workflow_dispatch:
 
