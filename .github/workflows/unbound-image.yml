@@ -26,12 +26,12 @@ jobs:
 
       # ghcr.io/gamerx27/unbound is still linked to the old Docker-X27-Composes
       # repo, so the default GITHUB_TOKEN here doesn't have write_package on
-      # it. GHCR_PAT is a classic PAT (write:packages) added as a repo secret.
+      # it. PUBLISH is a classic PAT (write:packages) added as a repo secret.
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+          password: ${{ secrets.PUBLISH }}
 
       - uses: docker/build-push-action@v6
         with:
