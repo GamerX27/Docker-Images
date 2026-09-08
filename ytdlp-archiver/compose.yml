@@ -1,0 +1,38 @@
+services:
+  ytdlp-archiver:
+    image: ghcr.io/gamerx27/ytdlp-archiver:latest
+    container_name: ytdlp-archiver
+    environment:
+      - MAX_CONCURRENT_DOWNLOADS=2
+      - PUID=1000
+      - PGID=1000
+      # Jellyfin integration (optional) — required only for the Monitor tab;
+      # without it, ad-hoc downloads still work and save straight to your browser.
+      #- JELLYFIN_URL=http://192.168.x.x:8096
+      #- JELLYFIN_API_KEY=
+      #- JELLYFIN_MEDIA_PATH=/mnt/Media
+    volumes:
+      # Temporary download staging area
+      - downloads_tmp:/app/tmp_downloads
+      # Persist monitor list across container updates
+      - monitors_data:/app/monitors_data
+      # Jellyfin media root — mount at the SAME path as JELLYFIN_MEDIA_PATH
+      # above, so Jellyfin API paths work directly inside the container
+      # without remapping. Uncomment and match the path exactly.
+      #- /mnt/Media:/mnt/Media
+    # Host networking — makes yt-dlp appear identical to running it directly
+    # on the host, which avoids YouTube bot-detection that blocks container
+    # IPs. The web UI is still available on http://localhost:3050.
+    network_mode: host
+    init: true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3050/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  downloads_tmp:
+  monitors_data:
