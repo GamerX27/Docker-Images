@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Mousepad
+Exec=mousepad %F
+Icon=mousepad
+StartupNotify=true

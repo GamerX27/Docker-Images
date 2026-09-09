@@ -16,7 +16,11 @@ pinned launchers).
 
 Not published yet - `compose.yml` builds it locally
 (`build: .`) until [.github/workflows/dev-box-image.yml](../.github/workflows/dev-box-image.yml)
-starts pushing it to `ghcr.io/gamerx27/dev-box:latest`.
+starts pushing it to `ghcr.io/gamerx27/dev-box:latest`. That workflow also
+runs on a weekly schedule (Sundays, 03:00 UTC) in addition to pushes and
+manual dispatch - since the build is `no-cache`, each run picks up fresh
+apt packages and the latest Zed/Claude Code installers without needing a
+code change.
 
 ## Usage
 
@@ -51,8 +55,8 @@ set below. The certificate is self-signed, so the browser will warn once.
   remote session.
 - Dark theme (Arc-Dark GTK/window manager + Papirus-Dark icons) via
   `xsettings.xml` / `xfwm4.xml`. There's a single top panel (no bottom
-  dock) with Chromium, Zed, the file manager, and a terminal pinned right
-  after the applications menu - see `xfce4-panel.xml` and
+  dock) with Chromium, Zed, Mousepad, the file manager, and a terminal
+  pinned right after the applications menu - see `xfce4-panel.xml` and
   `panel-launchers/`.
 - Desktop wallpaper is set in `xfce4-desktop.xml`, keyed to `VNC-0` -
   the fixed output name KasmVNC's Xvnc always reports for its virtual
@@ -81,6 +85,9 @@ set below. The certificate is self-signed, so the browser will warn once.
   sign-in button are both off by default (`zed-settings.json`, also a
   first-run seed) - a shared box isn't the place for updates changing
   under you or a sign-in prompt greeting you on launch.
+- **Mousepad** is the plain apt package, for quick edits that don't need a
+  full editor - it's the standard lightweight text editor in the XFCE
+  ecosystem.
 - **fish** is the default shell for `dev` (opening a terminal drops you
   into it directly); bash is still there if you want it.
 - **Claude Code, git, GitHub CLI (`gh`)** are installed; Claude Code from

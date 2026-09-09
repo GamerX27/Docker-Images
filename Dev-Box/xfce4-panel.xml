@@ -2,9 +2,9 @@
 
 <!--
   XFCE's own stock panel layout (captured from a real session), trimmed
-  to a single top bar: the bottom dock is dropped entirely, and four
-  pinned launchers (chromium, zed, file manager, terminal) sit right
-  after the applications menu instead.
+  to a single top bar: the bottom dock is dropped entirely, and five
+  pinned launchers (chromium, zed, mousepad, file manager, terminal) sit
+  right after the applications menu instead.
 -->
 <channel name="xfce4-panel" version="1.0">
   <property name="configver" type="int" value="2"/>
@@ -21,6 +21,7 @@
         <value type="int" value="1"/>
         <value type="int" value="11"/>
         <value type="int" value="12"/>
+        <value type="int" value="15"/>
         <value type="int" value="13"/>
         <value type="int" value="14"/>
         <value type="int" value="2"/>
@@ -45,6 +46,11 @@
     <property name="plugin-12" type="string" value="launcher">
       <property name="items" type="array">
         <value type="string" value="zed.desktop"/>
+      </property>
+    </property>
+    <property name="plugin-15" type="string" value="launcher">
+      <property name="items" type="array">
+        <value type="string" value="mousepad.desktop"/>
       </property>
     </property>
     <property name="plugin-13" type="string" value="launcher">

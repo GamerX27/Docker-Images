@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates curl wget sudo locales iptables iproute2 gnupg \
         xfce4 xfce4-terminal dbus-x11 arc-theme papirus-icon-theme \
         mesa-vulkan-drivers mesa-va-drivers libgl1-mesa-dri vainfo vulkan-tools \
-        htop chromium git pulseaudio pulseaudio-utils fish \
+        htop chromium git pulseaudio pulseaudio-utils fish mousepad \
     && sed -i 's/# en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen \
     && locale-gen \
     && rm -rf /var/lib/apt/lists/*
@@ -95,8 +95,8 @@ COPY xfwm4.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
 # Dark GTK theme (Arc-Dark, from the arc-theme package above).
 COPY xsettings.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 
-# Single top panel (no bottom dock) with chromium/zed/file-manager/terminal
-# pinned next to the applications menu - see xfce4-panel.xml.
+# Single top panel (no bottom dock) with chromium/zed/mousepad/file-manager/
+# terminal pinned next to the applications menu - see xfce4-panel.xml.
 COPY xfce4-panel.xml /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 COPY panel-launchers/ /etc/xdg/xfce4/panel/
 

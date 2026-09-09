@@ -6,6 +6,10 @@ on:
     paths:
       - "Dev-Box/**"
       - ".github/workflows/dev-box-image.yml"
+  schedule:
+    # Weekly rebuild, since the build is no-cache: picks up fresh apt
+    # packages and the latest Zed/Claude installers without a code change.
+    - cron: "0 3 * * 0"
   workflow_dispatch:
 
 permissions:
