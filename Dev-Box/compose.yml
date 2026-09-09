@@ -1,0 +1,33 @@
+services:
+  dev-box:
+    build: .
+    image: ghcr.io/gamerx27/dev-box:latest
+    container_name: dev-box
+    restart: unless-stopped
+    environment:
+      - VNC_PW=changeme
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./home:/home/dev
+      - ${HOME}/Documents/Code:/home/dev/Code
+    group_add:
+      # GID of the host's "render" group, so the container's dev user can
+      # open /dev/dri/renderD128 for GPU acceleration. Find it on the host
+      # with: getent group render | cut -d: -f3
+      - "${RENDER_GID:-108}"
+    shm_size: "2gb"
+    # Grants every capability and device (including /dev/dri, no separate
+    # `devices:` entry needed) and disables seccomp/AppArmor/SELinux
+    # container confinement. Needed for the internal Docker daemon inside
+    # this box (nested container runtimes need it - see CLAUDE.md for why
+    # this is still a scoped trade-off and not a hole to the host). The
+    # entrypoint's own iptables rules and the dedicated network below are
+    # unaffected by this - it governs capabilities, not network topology.
+    privileged: true
+    networks:
+      - dev-box-net
+
+networks:
+  dev-box-net:
+    driver: bridge

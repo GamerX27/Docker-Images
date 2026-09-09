@@ -1,0 +1,27 @@
+{
+  "PasswordManagerEnabled": false,
+  "AutofillAddressEnabled": false,
+  "AutofillCreditCardEnabled": false,
+  "SafeBrowsingProtectionLevel": 2,
+  "SafeBrowsingExtendedReportingEnabled": false,
+  "BlockThirdPartyCookies": true,
+  "HttpsOnlyMode": "force",
+  "NetworkPredictionOptions": 2,
+  "SearchSuggestEnabled": false,
+  "SpellcheckServiceEnabled": false,
+  "MetricsReportingEnabled": false,
+  "SyncDisabled": true,
+  "BrowserSignin": 0,
+  "DnsOverHttpsMode": "automatic",
+  "DefaultBrowserSettingEnabled": false,
+  "BookmarkBarEnabled": true,
+  "DefaultSearchProviderEnabled": true,
+  "DefaultSearchProviderName": "DuckDuckGo (No AI)",
+  "DefaultSearchProviderSearchURL": "https://noai.duckduckgo.com/?q={searchTerms}",
+  "DefaultSearchProviderSuggestURL": "https://duckduckgo.com/ac/?q={searchTerms}&type=list",
+  "DefaultSearchProviderIconURL": "https://duckduckgo.com/favicon.ico",
+  "ExtensionInstallForcelist": [
+    "ddkjiahejlhfcafbddmgiahcphecmpfh;https://clients2.google.com/service/update2/crx",
+    "fcoeoabgfenejglbffodgkkbkcdhcgfn;https://clients2.google.com/service/update2/crx"
+  ]
+}

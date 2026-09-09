@@ -1,0 +1,8 @@
+# Chromium's own process sandbox needs CAP_SYS_ADMIN to set up namespaces,
+# which we deliberately don't grant the container (it's a much bigger
+# capability to hand over than what it buys back here) - the container
+# boundary and this image's own restrictions (non-root user, isolated
+# network) are the security boundary instead.
+# --test-type suppresses the "unsupported command-line flag" infobar that
+# --no-sandbox would otherwise show on every launch.
+CHROMIUM_FLAGS="$CHROMIUM_FLAGS --no-sandbox --test-type"

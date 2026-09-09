@@ -1,0 +1,3 @@
+# Runtime state from `docker compose up` against the compose files in this
+# repo (e.g. Dev-Box/home/) - never source, never meant to be committed.
+*/home/
