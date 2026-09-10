@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Dashboard</title>
+  <script>
+    // Apply the last-known theme/accent before the stylesheet paints anything,
+    // so a reload doesn't flash the default light theme while /api/config and
+    // the wallpaper's canvas analysis (both async) are still in flight.
+    (function () {
+      try {
+        var root = document.documentElement;
+        if (localStorage.getItem("theme") === "dark") {
+          root.setAttribute("data-theme", "dark");
+          root.style.colorScheme = "dark";
+        }
+        var accent = localStorage.getItem("accentRgb");
+        if (accent) root.style.setProperty("--accent-rgb", accent);
+        var uiScale = localStorage.getItem("uiScale");
+        if (uiScale) root.style.setProperty("--ui-scale", uiScale);
+      } catch (err) {}
+    })();
+  </script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><rect width=%2224%22 height=%2224%22 rx=%226%22 fill=%22%234f7cff%22/><rect x=%224%22 y=%224%22 width=%227%22 height=%227%22 rx=%221.5%22 fill=%22white%22/><rect x=%2213%22 y=%224%22 width=%227%22 height=%227%22 rx=%221.5%22 fill=%22white%22 opacity=%22.7%22/><rect x=%224%22 y=%2213%22 width=%227%22 height=%227%22 rx=%221.5%22 fill=%22white%22 opacity=%22.7%22/><rect x=%2213%22 y=%2213%22 width=%227%22 height=%227%22 rx=%221.5%22 fill=%22white%22/></svg>">
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <div id="bg" class="bg"></div>
+  <div class="scrim"></div>
+  <script>
+    // Same idea as the head script: paint the last wallpaper immediately
+    // instead of the default gradient while the real config loads.
+    (function () {
+      try {
+        var wallpaper = localStorage.getItem("wallpaper");
+        if (wallpaper) document.getElementById("bg").style.backgroundImage = "url(/wallpapers/" + wallpaper + ")";
+      } catch (err) {}
+    })();
+  </script>
+
+  <main class="page">
+    <header class="topbar">
+      <div class="brand" id="brandTitle">Dashboard</div>
+      <button id="settingsBtn" class="icon-btn" title="Settings" aria-label="Open settings">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19.14 12.94a7.14 7.14 0 0 0 .06-.94 7.14 7.14 0 0 0-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.3 7.3 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.14.56-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.7 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.62-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.42.32.66.22l2.39-.96c.49.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.14-.56 1.63-.94l2.39.96c.24.1.52.02.66-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"/></svg>
+      </button>
+    </header>
+
+    <section class="hero">
+      <div class="clock" id="clock"></div>
+      <div class="greeting" id="greeting"></div>
+      <div class="search-wrap" id="searchWrap">
+        <form id="searchForm" class="search" autocomplete="off">
+          <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="m21.71 20.29-3.4-3.39A8 8 0 1 0 16.9 18.3l3.39 3.4a1 1 0 0 0 1.42-1.41ZM4 10a6 6 0 1 1 6 6 6 6 0 0 1-6-6Z"/></svg>
+          <input id="searchInput" type="text" placeholder="Search shortcuts or the web…" aria-label="Search shortcuts or the web" autocomplete="off" />
+        </form>
+        <div class="search-suggestions" id="searchSuggestions" hidden></div>
+      </div>
+    </section>
+
+    <section class="pages-viewport" id="pagesViewport">
+      <div class="pages-track" id="pagesTrack" aria-live="polite"></div>
+    </section>
+    <nav class="page-dots" id="pageDots" hidden aria-label="Dashboard pages"></nav>
+
+    <div class="edge-indicator edge-indicator-left" id="edgeIndicatorLeft" aria-hidden="true">
+      <svg class="edge-ring" viewBox="0 0 40 40" width="56" height="56">
+        <circle class="edge-ring-bg" cx="20" cy="20" r="16" />
+        <circle class="edge-ring-fill" cx="20" cy="20" r="16" />
+      </svg>
+      <svg class="edge-chevron" viewBox="0 0 24 24" width="18" height="18">
+        <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <div class="edge-indicator edge-indicator-right" id="edgeIndicatorRight" aria-hidden="true">
+      <svg class="edge-ring" viewBox="0 0 40 40" width="56" height="56">
+        <circle class="edge-ring-bg" cx="20" cy="20" r="16" />
+        <circle class="edge-ring-fill" cx="20" cy="20" r="16" />
+      </svg>
+      <svg class="edge-chevron" viewBox="0 0 24 24" width="18" height="18">
+        <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+
+    <p class="empty-hint" id="emptyHint" hidden>
+      No shortcuts yet. Open <strong>Settings</strong> to add your first app or site.
+    </p>
+  </main>
+
+  <!-- Settings drawer -->
+  <div id="overlay" class="overlay" hidden></div>
+  <aside id="drawer" class="drawer" hidden aria-label="Settings">
+    <div class="drawer-head">
+      <h2>Settings</h2>
+      <button id="closeDrawer" class="icon-btn" aria-label="Close settings">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.7l-1.41-1.42L9.17 12 2.89 5.71 4.3 4.29l6.29 6.3 6.29-6.3z"/></svg>
+      </button>
+    </div>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="general" role="tab" aria-selected="true" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19.14 12.94a7.14 7.14 0 0 0 .06-.94 7.14 7.14 0 0 0-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.3 7.3 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.14.56-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.7 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.62-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.42.32.66.22l2.39-.96c.49.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.14-.56 1.63-.94l2.39.96c.24.1.52.02.66-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"/></svg>
+        General
+      </button>
+      <button class="tab-btn" data-tab="appearance" role="tab" aria-selected="false" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Zm2 12h12l-4.2-5.6-3 3.6L8.5 12 6 15.4V17Zm2.5-7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg>
+        Appearance
+      </button>
+      <button class="tab-btn" data-tab="shortcuts" role="tab" aria-selected="false" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z"/></svg>
+        Shortcuts
+      </button>
+    </nav>
+
+    <div class="drawer-body">
+      <div class="tab-panel" data-panel="general">
+        <label class="field">
+          <span>Dashboard title</span>
+          <input id="titleInput" type="text" maxlength="80" />
+        </label>
+        <label class="field">
+          <span>SearXNG URL</span>
+          <input id="searxngInput" type="text" placeholder="http://localhost:8888" />
+        </label>
+        <p class="hint">The address of your self-hosted SearXNG instance, reachable from your browser. Searches go to <code>&lt;url&gt;/search?q=…</code>.</p>
+        <label class="field checkbox">
+          <input id="newTabInput" type="checkbox" />
+          <span>Open shortcuts &amp; search in a new tab</span>
+        </label>
+        <label class="field checkbox">
+          <input id="greetingInput" type="checkbox" />
+          <span>Show clock &amp; greeting</span>
+        </label>
+        <label class="field checkbox">
+          <input id="clock24hInput" type="checkbox" />
+          <span>Use 24-hour time</span>
+        </label>
+        <div class="panel-actions">
+          <button id="saveSettingsBtn" class="btn primary">Save settings</button>
+          <span id="settingsStatus" class="status" role="status"></span>
+        </div>
+
+        <p class="section-label with-hint">Display</p>
+        <label class="field">
+          <span>UI size</span>
+          <select id="uiScaleInput">
+            <option value="auto">Auto (recommended)</option>
+            <option value="0.9">Small</option>
+            <option value="1">Medium</option>
+            <option value="1.15">Large</option>
+            <option value="1.3">Extra large</option>
+          </select>
+        </label>
+
+        <p class="section-label with-hint">Backup</p>
+        <div class="wallpaper-row">
+          <a class="btn" id="exportBtn" href="/api/export">Export config</a>
+          <label class="btn" for="importFile">Import config</label>
+          <input id="importFile" type="file" accept=".zip" hidden />
+        </div>
+        <p class="hint">Exports settings, shortcuts, wallpaper, and custom icons to a single file. Importing replaces your current configuration.</p>
+      </div>
+
+      <div class="tab-panel" data-panel="appearance" hidden>
+        <div class="split">
+          <div class="split-col">
+            <p class="section-label">Wallpaper</p>
+            <div class="wallpaper-preview" id="wallpaperPreview"></div>
+            <div class="wallpaper-row">
+              <label class="btn" for="wallpaperFile">Upload image</label>
+              <input id="wallpaperFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+              <button id="resetWallpaperBtn" class="btn">Reset to default</button>
+            </div>
+            <p class="hint">JPG, PNG, WebP or GIF, up to 15&nbsp;MB.</p>
+          </div>
+          <div class="split-col">
+            <p class="section-label">Accent &amp; theme</p>
+            <div class="accent-preview">
+              <span class="accent-swatch" id="accentSwatch"></span>
+              <span id="accentHex" class="accent-hex">—</span>
+            </div>
+            <p class="hint">Both the accent color and the light/dark theme are derived automatically from the wallpaper's colors and brightness. Reset the wallpaper to return to the default light theme.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" data-panel="shortcuts" hidden>
+        <div class="split">
+          <div class="split-col">
+            <p class="section-label">Add a shortcut</p>
+            <form id="addForm" class="stack">
+              <label class="field">
+                <span>Name</span>
+                <input id="scName" type="text" required maxlength="60" placeholder="Plex" />
+              </label>
+              <label class="field">
+                <span>URL</span>
+                <input id="scUrl" type="text" required placeholder="http://192.168.1.10:32400" />
+              </label>
+              <label class="field">
+                <span>Icon</span>
+                <div class="icon-field-row">
+                  <span class="icon-field-preview" id="scIconPreview"></span>
+                  <button type="button" class="btn" id="scBrowseIconBtn">Browse library</button>
+                  <label class="btn" for="scIconFile">Upload image</label>
+                  <input id="scIconFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/x-icon" hidden />
+                  <input id="scIcon" type="hidden" />
+                </div>
+              </label>
+              <p class="hint">Leave unset to auto-match a bundled icon by name, or fall back to the site's own favicon.</p>
+              <p class="hint">New shortcuts are added to the page you're currently viewing — drag a tile onto a page dot (or the edge of the screen) to move it to another page.</p>
+              <button type="submit" class="btn primary">Add shortcut</button>
+            </form>
+          </div>
+          <div class="split-col">
+            <p class="section-label">Manage shortcuts</p>
+            <p class="hint">Drag tiles on the dashboard to reorder them.</p>
+            <div id="manageList" class="manage-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="app-version" id="appVersion"></p>
+  </aside>
+
+  <!-- Edit shortcut modal -->
+  <div id="editModal" class="modal-overlay" hidden>
+    <div class="modal">
+      <h3>Edit shortcut</h3>
+      <form id="editForm" class="stack">
+        <input type="hidden" id="editId" />
+        <label class="field">
+          <span>Name</span>
+          <input id="editName" type="text" required maxlength="60" />
+        </label>
+        <label class="field">
+          <span>URL</span>
+          <input id="editUrl" type="text" required />
+        </label>
+        <label class="field">
+          <span>Icon</span>
+          <div class="icon-field-row">
+            <span class="icon-field-preview" id="editIconPreview"></span>
+            <button type="button" class="btn" id="editBrowseIconBtn">Browse library</button>
+            <label class="btn" for="editIconFile">Upload image</label>
+            <input id="editIconFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/x-icon" hidden />
+            <input id="editIcon" type="hidden" />
+          </div>
+          <button type="button" class="btn danger icon-remove-btn" id="editRemoveIconBtn">Remove custom icon</button>
+        </label>
+        <p class="hint">Leave unset to auto-match a bundled icon by name, or fall back to the site's own favicon.</p>
+        <p class="hint">Drag the tile on the dashboard onto a page dot (or the edge of the screen) to move it to another page.</p>
+        <div class="modal-actions">
+          <button type="button" id="editCancel" class="btn">Cancel</button>
+          <button type="submit" class="btn primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Icon library picker -->
+  <div id="iconPickerModal" class="modal-overlay" hidden>
+    <div class="modal modal-wide">
+      <h3>Choose an icon</h3>
+      <input id="iconPickerSearch" type="text" class="icon-picker-search" placeholder="Search services…" />
+      <div id="iconPickerGrid" class="icon-picker-grid"></div>
+      <p class="icon-picker-empty hint" id="iconPickerEmpty" hidden>No matching icons.</p>
+      <p class="hint icon-picker-disclaimer">
+        Icons courtesy of <a href="https://selfh.st/icons" target="_blank" rel="noopener noreferrer">selfh.st/icons</a>
+        (CC BY 4.0). They're the trademarks/logos of their respective projects, included here only to help identify
+        shortcuts at a glance — not affiliated with or endorsed by those projects.
+      </p>
+      <div class="modal-actions">
+        <button type="button" id="iconPickerCancel" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/app.js"></script>
+</body>
+</html>

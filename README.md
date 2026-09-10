@@ -8,3 +8,4 @@ Compose files for images pulled from other maintainers live in [Docker-X27-Compo
 
 - [Dev-Box](Dev-Box) — `ghcr.io/gamerx27/dev-box`
 - [unbound](unbound) — `ghcr.io/gamerx27/unbound`
+- [X-Dashboard](X-Dashboard) — `ghcr.io/gamerx27/x-dashboard`

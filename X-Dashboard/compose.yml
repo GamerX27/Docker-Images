@@ -1,0 +1,15 @@
+services:
+  x-dashboard:
+    image: ghcr.io/gamerx27/x-dashboard:latest
+    container_name: x-dashboard
+    restart: unless-stopped
+    ports:
+      - "8008:8008"
+    volumes:
+      - ./data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8008/health', timeout=2).read()"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
