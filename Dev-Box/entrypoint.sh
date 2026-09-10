@@ -162,6 +162,13 @@ fi
 # though the process behind them is long gone - clean up before relaunching.
 rm -f "/tmp/.X0-lock" "/tmp/.X11-unix/X0"
 
+# Same idea for Chromium: SingletonLock stores hostname-pid, but the
+# hostname is this container's ID, which changes on recreate even though
+# the profile (bind-mounted) survives it - clear the stale lock.
+rm -f "$VNC_HOME/.config/chromium/SingletonLock" \
+      "$VNC_HOME/.config/chromium/SingletonSocket" \
+      "$VNC_HOME/.config/chromium/SingletonCookie"
+
 # KasmVNC's websocket port is 8443 + display number, so use :0 to land on
 # the plain, expected 8443.
 exec setpriv --reuid="$VNC_USER" --regid="$VNC_USER" --groups="$ALL_GIDS" \
