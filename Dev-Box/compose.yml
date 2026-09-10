@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     environment:
       - VNC_PW=changeme
+      - TZ=Europe/Oslo
     ports:
       - "8443:8443"
     volumes:

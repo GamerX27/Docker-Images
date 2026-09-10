@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates curl wget sudo locales iptables iproute2 gnupg \
         xfce4 xfce4-terminal dbus-x11 arc-theme papirus-icon-theme \
         mesa-vulkan-drivers mesa-va-drivers libgl1-mesa-dri vainfo vulkan-tools \
-        htop chromium git pulseaudio pulseaudio-utils fish mousepad \
+        htop chromium git openssh-client pulseaudio pulseaudio-utils fish mousepad tzdata \
     && sed -i 's/# en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen \
     && locale-gen \
     && rm -rf /var/lib/apt/lists/*

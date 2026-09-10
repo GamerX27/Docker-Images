@@ -10,6 +10,16 @@ DRI_NODE="${DRI_NODE:-/dev/dri/renderD128}"
 export HOME="$VNC_HOME"
 export USER="$VNC_USER"
 
+# TZ is read from the environment (not baked in at build time) so changing
+# it is just a compose.yml edit + restart, no rebuild needed.
+TZ="${TZ:-UTC}"
+if [ -f "/usr/share/zoneinfo/$TZ" ]; then
+    ln -sf "/usr/share/zoneinfo/$TZ" /etc/localtime
+    echo "$TZ" > /etc/timezone
+else
+    echo "Unknown TZ '$TZ', leaving clock as UTC" >&2
+fi
+
 # Network lockdown: real internet access, but no reaching into the user's
 # LAN. iptables state doesn't survive a restart (fresh netns each time),
 # so this runs unconditionally on every start, unlike the first-run-only
