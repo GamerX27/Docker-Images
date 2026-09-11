@@ -1,3 +1,4 @@
+import concurrent.futures
 import io
 import json
 import os
@@ -36,6 +37,9 @@ MAX_ICON_BYTES = 2 * 1024 * 1024  # 2 MB
 FAVICON_FETCH_TIMEOUT = 5
 MAX_FAVICON_BYTES = 2 * 1024 * 1024  # 2 MB
 FAVICON_USER_AGENT = "Mozilla/5.0 (compatible; HomelabDashboard/1.0; +favicon-fetch)"
+
+STATUS_CHECK_TIMEOUT = 4
+STATUS_CHECK_MAX_WORKERS = 8
 FAVICON_CONTENT_TYPE_TO_EXT = {
     "image/x-icon": ".ico",
     "image/vnd.microsoft.icon": ".ico",
@@ -227,6 +231,38 @@ def _resolve_favicon(page_url):
     except (urllib.error.URLError, TimeoutError, OSError, ValueError):
         pass
     return None
+
+
+# ---------- shortcut online status ----------
+# Checked server-side, same as favicon resolution, to avoid CORS issues with
+# LAN-only URLs.
+
+def _check_url_status(url):
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": FAVICON_USER_AGENT})
+        try:
+            with urllib.request.urlopen(req, timeout=STATUS_CHECK_TIMEOUT) as resp:
+                code = resp.status
+        except urllib.error.HTTPError as e:
+            code = e.code
+        return "online" if code < 400 else "degraded"
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError):
+        return "offline"
+
+
+@app.get("/api/status")
+def api_status():
+    with _lock:
+        cfg = _load_config()
+    shortcuts = cfg["shortcuts"]
+    if not shortcuts:
+        return jsonify({})
+    results = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(STATUS_CHECK_MAX_WORKERS, len(shortcuts))) as executor:
+        future_to_id = {executor.submit(_check_url_status, s["url"]): s["id"] for s in shortcuts}
+        for future in concurrent.futures.as_completed(future_to_id):
+            results[future_to_id[future]] = future.result()
+    return jsonify(results)
 
 
 def _favicon_cache_clear(shortcut_id):

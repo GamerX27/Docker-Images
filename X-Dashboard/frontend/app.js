@@ -4,6 +4,7 @@
     shortcuts: [],
     iconLibrary: [],
     currentPage: 1,
+    statuses: {},
   };
 
   const el = (id) => document.getElementById(id);
@@ -428,6 +429,49 @@
     return [...shortcuts].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 
+  // ---------- shortcut online status ----------
+
+  const STATUS_LABELS = {
+    online: "Online",
+    degraded: "Reachable, but returned an error",
+    offline: "Offline",
+  };
+
+  function buildStatusDot(shortcut) {
+    const dot = document.createElement("span");
+    dot.className = "tile-status-dot";
+    dot.dataset.statusId = shortcut.id;
+    applyStatusToDot(dot, state.statuses[shortcut.id]);
+    return dot;
+  }
+
+  function applyStatusToDot(dot, status) {
+    dot.className = "tile-status-dot" + (status ? ` status-${status}` : "");
+    dot.title = STATUS_LABELS[status] || "Checking…";
+  }
+
+  async function refreshStatuses() {
+    if (state.shortcuts.length === 0) return;
+    try {
+      const statuses = await api("/api/status");
+      state.statuses = statuses;
+      for (const [id, status] of Object.entries(statuses)) {
+        document.querySelectorAll(`.tile-status-dot[data-status-id="${id}"]`).forEach((dot) => {
+          applyStatusToDot(dot, status);
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  let statusPollTimer = null;
+  function startStatusPolling() {
+    refreshStatuses();
+    if (statusPollTimer) clearInterval(statusPollTimer);
+    statusPollTimer = setInterval(refreshStatuses, 60 * 1000);
+  }
+
   // ---------- pages (multiple home-screen-style pages, like Android/iOS) ----------
 
   const MAX_SHORTCUTS_PER_PAGE = 14;
@@ -516,6 +560,7 @@
 
     tile.appendChild(iconWrap);
     tile.appendChild(name);
+    tile.appendChild(buildStatusDot(shortcut));
 
     tile.addEventListener("dragstart", () => {
       dragSourceId = shortcut.id;
@@ -896,6 +941,7 @@
       editModal.hidden = true;
       renderPages();
       renderManageList();
+      refreshStatuses();
     } catch (err) {
       alert(err.message);
     }
@@ -928,6 +974,7 @@
       state.currentPage = targetPage;
       renderPages();
       renderManageList();
+      refreshStatuses();
       addForm.reset();
       updateIconPreview(scIconPreview, "");
       clearStagedIconFile();
@@ -1066,6 +1113,7 @@
       applySettingsToUI();
       renderPages();
       renderManageList();
+      refreshStatuses();
       settingsStatus.textContent = "Imported.";
       setTimeout(() => (settingsStatus.textContent = ""), 2000);
     } catch (err) {
@@ -1255,6 +1303,7 @@
       if (cfg.version) appVersion.textContent = `v${cfg.version}`;
       applySettingsToUI();
       renderPages();
+      startStatusPolling();
     } catch (err) {
       console.error(err);
       pagesTrack.innerHTML = `<p class="empty-hint">Could not load dashboard config: ${err.message}</p>`;
