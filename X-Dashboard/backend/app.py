@@ -3,6 +3,7 @@ import io
 import json
 import os
 import re
+import ssl
 import threading
 import urllib.error
 import urllib.parse
@@ -37,6 +38,15 @@ MAX_ICON_BYTES = 2 * 1024 * 1024  # 2 MB
 FAVICON_FETCH_TIMEOUT = 5
 MAX_FAVICON_BYTES = 2 * 1024 * 1024  # 2 MB
 FAVICON_USER_AGENT = "Mozilla/5.0 (compatible; HomelabDashboard/1.0; +favicon-fetch)"
+
+# Shortcuts routinely point at self-hosted services on bare LAN IPs
+# (e.g. https://192.168.1.10:8443/), which almost always serve a
+# self-signed certificate. Verifying it server-side would mark those
+# services offline / icon-less even though they work fine in a browser
+# (where the user has already clicked through the warning once).
+_INSECURE_SSL_CONTEXT = ssl.create_default_context()
+_INSECURE_SSL_CONTEXT.check_hostname = False
+_INSECURE_SSL_CONTEXT.verify_mode = ssl.CERT_NONE
 
 STATUS_CHECK_TIMEOUT = 4
 STATUS_CHECK_MAX_WORKERS = 8
@@ -160,7 +170,7 @@ def _validate_shortcut_payload(data, partial=False):
 
 def _favicon_http_get(url):
     req = urllib.request.Request(url, headers={"User-Agent": FAVICON_USER_AGENT})
-    with urllib.request.urlopen(req, timeout=FAVICON_FETCH_TIMEOUT) as resp:
+    with urllib.request.urlopen(req, timeout=FAVICON_FETCH_TIMEOUT, context=_INSECURE_SSL_CONTEXT) as resp:
         content_type = resp.headers.get("Content-Type", "")
         data = resp.read(MAX_FAVICON_BYTES + 1)
         final_url = resp.geturl()
@@ -241,7 +251,7 @@ def _check_url_status(url):
     try:
         req = urllib.request.Request(url, headers={"User-Agent": FAVICON_USER_AGENT})
         try:
-            with urllib.request.urlopen(req, timeout=STATUS_CHECK_TIMEOUT) as resp:
+            with urllib.request.urlopen(req, timeout=STATUS_CHECK_TIMEOUT, context=_INSECURE_SSL_CONTEXT) as resp:
                 code = resp.status
         except urllib.error.HTTPError as e:
             code = e.code
