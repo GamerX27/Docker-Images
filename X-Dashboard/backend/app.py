@@ -24,6 +24,8 @@ FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 ICON_LIBRARY_DIR = Path(__file__).resolve().parent / "icons"
 ICON_LIBRARY_MANIFEST = ICON_LIBRARY_DIR / "manifest.json"
 VERSION_PATH = Path(__file__).resolve().parent.parent / "VERSION"
+DEFAULT_ASSETS_DIR = Path(__file__).resolve().parent / "assets"
+DEFAULT_WALLPAPER_FILENAME = "default-wallpaper.svg"
 
 try:
     APP_VERSION = VERSION_PATH.read_text().strip()
@@ -104,11 +106,24 @@ def _load_icon_library():
     return _icon_library_cache
 
 
+def _seed_default_wallpaper(cfg):
+    src = DEFAULT_ASSETS_DIR / DEFAULT_WALLPAPER_FILENAME
+    dest = WALLPAPER_DIR / DEFAULT_WALLPAPER_FILENAME
+    try:
+        if not dest.exists():
+            dest.write_bytes(src.read_bytes())
+        cfg["settings"]["wallpaper"] = DEFAULT_WALLPAPER_FILENAME
+    except OSError:
+        pass
+
+
 def _load_config():
     _ensure_dirs()
     if not CONFIG_PATH.exists():
-        _save_config(DEFAULT_CONFIG)
-        return json.loads(json.dumps(DEFAULT_CONFIG))
+        cfg = json.loads(json.dumps(DEFAULT_CONFIG))
+        _seed_default_wallpaper(cfg)
+        _save_config(cfg)
+        return cfg
     try:
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             cfg = json.load(f)

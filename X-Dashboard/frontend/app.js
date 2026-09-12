@@ -1222,6 +1222,7 @@
     searchSuggestions.appendChild(webItem);
 
     searchSuggestions.hidden = false;
+    if (matches.length) setActiveSuggestion(0);
   }
 
   searchInput.addEventListener("input", renderSearchSuggestions);

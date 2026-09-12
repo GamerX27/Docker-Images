@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="base" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f1d"/>
+      <stop offset="55%" stop-color="#10152a"/>
+      <stop offset="100%" stop-color="#161033"/>
+    </linearGradient>
+    <radialGradient id="glowBlue" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4f7cff" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#4f7cff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowPurple" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8a5cf6" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#8a5cf6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowTeal" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38d0c9" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#38d0c9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
+      <stop offset="60%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.45"/>
+    </radialGradient>
+    <filter id="soften" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="90"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#base)"/>
+
+  <g filter="url(#soften)">
+    <circle cx="1500" cy="220" r="480" fill="url(#glowBlue)"/>
+    <circle cx="360" cy="880" r="560" fill="url(#glowPurple)"/>
+    <circle cx="1250" cy="900" r="420" fill="url(#glowTeal)"/>
+  </g>
+
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+</svg>

@@ -391,19 +391,19 @@ body {
 .tile.drag-over { outline: 2px dashed var(--accent); outline-offset: 3px; }
 
 .tile-icon {
-  width: 68px;
-  height: 68px;
-  border-radius: 20px;
+  width: 84px;
+  height: 84px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.6rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--accent-contrast);
   overflow: hidden;
   backdrop-filter: blur(8px);
 }
-.tile-icon img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
+.tile-icon img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
 
 .tile-name {
   font-size: 0.95rem;
